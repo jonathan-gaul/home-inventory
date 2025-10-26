@@ -19,9 +19,12 @@ public class AzureBlobStorageService : IBlobStorageService
         var blobClient = _containerClient.GetBlobClient(blobId.ToString());
         await blobClient.DeleteIfExistsAsync().ConfigureAwait(false);
     }
-    public Task<Stream?> DownloadAsync(Guid blobId)
+    public async Task<Stream?> DownloadAsync(Guid blobId)
     {
-        throw new NotImplementedException();
+        var blobClient = _containerClient.GetBlobClient(blobId.ToString());
+
+        var response = await blobClient.DownloadStreamingAsync().ConfigureAwait(false);
+        return response.Value?.Content;
     }
     public async Task UploadAsync(Guid blobId, string contentType, Stream content)
     {

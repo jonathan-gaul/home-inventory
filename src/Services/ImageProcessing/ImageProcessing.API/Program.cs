@@ -32,6 +32,14 @@ builder.Services.AddScoped<IBlobStorageService>(sp =>
 
 builder.Services.AddScoped<IImageRepository, EntityFrameworkImageRepository>();
 
+var cvEndpoint = builder.Configuration["ComputerVision:Endpoint"];
+var cvApiKey = builder.Configuration["ComputerVision:ApiKey"];
+if (string.IsNullOrEmpty(cvEndpoint) || string.IsNullOrEmpty(cvApiKey))
+    throw new InvalidOperationException("ComputerVision settings are not configured");
+
+builder.Services.AddScoped<IComputerVisionService>(sp =>
+    new AzureComputerVisionService(cvEndpoint, cvApiKey));
+
 var app = builder.Build();
 
 var imagesApi = app.MapGroup("/images");
@@ -47,7 +55,75 @@ imagesApi.MapGet("/{id}/content", async (Guid id, IBlobStorageService storage, I
             return Results.NotFound();
 
         return Results.File(stream, image.ContentType);
-    });  
+    });
+
+app.MapPost("/{id}/analyse", async (
+    Guid id,
+    IImageRepository repository,
+    IBlobStorageService blobStorage,
+    IComputerVisionService computerVision,
+    ILogger<Program> logger) =>
+{
+    // Get image metadata
+    var image = await repository.GetImageByIdAsync(id).ConfigureAwait(false);
+    if (image == null)
+        return Results.NotFound();
+
+    // Check if already analyzed
+    if (image.AnalysisStatus == ImageAnalysisStatus.Analysed)
+        return Results.Ok(new { message = "Image already analysed", image });
+
+    if (image.AnalysisStatus == ImageAnalysisStatus.Analysing)
+        return Results.Ok(new { message = "Image analysis already in progress" });
+
+    try
+    {
+        // Update status to analyzing
+        image.AnalysisStatus = ImageAnalysisStatus.Analysing;
+        await repository.UpdateImageAsync(image).ConfigureAwait(false);
+
+        logger.LogInformation("Starting analysis for image {ImageId}", id);
+
+        // Download image from blob storage
+        using var imageStream = await blobStorage.DownloadAsync(image.Id!.Value);
+
+        if (imageStream is null)
+            return Results.NotFound();
+
+        // Analyze with Computer Vision
+        var analysisResult = await computerVision.AnalyzeImageAsync(imageStream);
+
+        //// Update metadata with results
+        //image.Tags = System.Text.Json.JsonSerializer.Serialize(analysisResult.Tags);
+        //image.DetectedObjects = System.Text.Json.JsonSerializer.Serialize(analysisResult.Objects);
+        //image.OcrText = analysisResult.OcrText;
+        //image.Caption = analysisResult.Caption;
+        //image.AnalysisStatus = ImageAnalysisStatus.Completed;
+        //image.AnalyzedAt = DateTime.UtcNow;
+
+        //await repository.UpdateAsync(image);
+
+        logger.LogInformation("Successfully analyzed image {ImageId}", id);
+
+        return Results.Ok(new
+        {
+            message = "Analysis completed successfully",
+            tags = analysisResult.Tags,
+            objects = analysisResult.Objects,
+            ocrText = analysisResult.OcrText,
+            caption = analysisResult.Caption
+        });
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error analyzing image {ImageId}", id);
+
+        image.AnalysisStatus = ImageAnalysisStatus.Failed;
+        await repository.UpdateImageAsync(image);
+
+        return Results.Problem("Analysis failed");
+    }
+});
 
 imagesApi.MapGet("/{id}", async (Guid id, IImageRepository repository)
     => await repository.GetImageByIdAsync(id) switch
