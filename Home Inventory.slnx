@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Services/" />
+  <Folder Name="/Services/Assets/">
+    <Project Path="src/Services/Assets/Assets.API/Assets.API.csproj" />
+    <Project Path="src/Services/Assets/Assets.Data/Assets.Data.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
