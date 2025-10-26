@@ -4,6 +4,10 @@
     <Project Path="src/Services/Assets/Assets.API/Assets.API.csproj" />
     <Project Path="src/Services/Assets/Assets.Data/Assets.Data.csproj" />
   </Folder>
+  <Folder Name="/Services/ImageProcessing/">
+    <Project Path="src/Services/ImageProcessing/ImageProcessing.API/ImageProcessing.API.csproj" Id="72b87749-6b8b-4675-8029-2777fcae9951" />
+    <Project Path="src/Services/ImageProcessing/ImageProcessing.Data/ImageProcessing.Data.csproj" Id="8a032f20-bf3f-4716-9859-15cf4a60ac9f" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

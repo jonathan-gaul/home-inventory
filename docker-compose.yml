@@ -19,5 +19,13 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
 
+  imageprocessing.api:
+    image: ${DOCKER_REGISTRY-}imageprocessingapi
+    build:
+      context: .
+      dockerfile: src/Services/ImageProcessing/ImageProcessing.API/Dockerfile
+    depends_on:
+    - sqlserver
+
 volumes:
   sqlserver-data:
