@@ -30,9 +30,11 @@ public class AzureComputerVisionService : IComputerVisionService
 
         var result = await _client.AnalyzeAsync(imageData, visualFeatures, analysisOptions).ConfigureAwait(false);
 
+        var ocrText = (result.Value.Read?.Blocks?.Count ?? 0) > 0 ? string.Join('\n', result.Value.Read?.Blocks[0].Lines.Select(x => x.Text) ?? []) : "";
+
         return new ImageAnalysisResult
         {
-            Tags = [.. result.Value.Tags.Values.Select(t => t.Name)],
+            Tags = [.. result.Value.Tags.Values.Select(t => $"{t.Name} ({t.Confidence})")],
 
             Objects = [.. result.Value.Objects.Values
                 .Select(o => new DetectedObject
@@ -41,7 +43,7 @@ public class AzureComputerVisionService : IComputerVisionService
                     Confidence = o.Tags.FirstOrDefault()?.Confidence ?? 0
                 })],
 
-            OcrText = string.Join('\n', result.Value.Read?.Blocks[0].Lines.Select(x => x.Text) ?? []),
+            OcrText = ocrText,
 
             Caption = result.Value.Caption?.Text
         };

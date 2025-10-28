@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace Assets.Data.Context;
@@ -14,7 +15,7 @@ public class AssetsDbContext : DbContext
     }
 
     public DbSet<Asset> Assets => Set<Asset>();
-
+    public DbSet<Location> Locations => Set<Location>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +47,26 @@ public class AssetsDbContext : DbContext
             entity.HasIndex(e => e.Name);
             entity.HasIndex(e => e.SerialNumber);
             entity.HasIndex(e => e.ModelNumber);
+        });
+
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+            entity.Property(e => e.LastUpdatedAt)
+                .IsRequired();
+
+            entity.HasIndex(e => e.Name);
+            entity.HasIndex(e => e.ParentLocationId);
         });
     }
 }

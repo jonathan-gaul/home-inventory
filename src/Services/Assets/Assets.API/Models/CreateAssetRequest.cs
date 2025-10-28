@@ -1,14 +1,12 @@
-﻿using Assets.Data.Entities;
+﻿namespace Assets.API.Models;
 
-namespace Assets.API.Models;
-
-public class CreateAssetRequest
+public record CreateAssetRequest
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
-    public string Manufacturer {  get; set; } = string.Empty;
-    public string ModelNumber { get; set; } = string.Empty;
-    public string SerialNumber { get; set; } = string.Empty;    
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public string? Type { get; set; }
+    public string? Manufacturer {  get; set; }
+    public string? ModelNumber { get; set; }
+    public string? SerialNumber { get; set; }
 }
 
