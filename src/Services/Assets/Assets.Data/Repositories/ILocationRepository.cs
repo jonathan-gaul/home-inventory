@@ -7,11 +7,16 @@ namespace Assets.Data.Repositories;
 
 public interface ILocationRepository
 {
-    Task<Location?> GetLocationByIdAsync(Guid id);
-    Task<IEnumerable<Location>> GetLocationsByIdAsync(params Guid[] ids);
-    Task AddLocationAsync(Location location);
-    Task<Location?> UpdateLocationAsync(Location location);
-    Task<IEnumerable<Location>> UpdateLocationsAsync(params Location[] locations);
-    Task DeleteLocationAsync(Guid id);
-    Task<IEnumerable<Location>> GetLocationsByParentIdAsync(Guid id);
+    Task<Location?> GetByIdAsync(Guid id);
+    Task<IEnumerable<Location>> GetManyByIdAsync(params Guid[] ids);
+    Task<IEnumerable<Location>> GetByParentIdAsync(Guid id);
+
+    Task<Location> AddAsync(Location location);
+    Task<IEnumerable<Location>> AddManyAsync(params Location[] locations);
+
+    Task<Location?> UpdateAsync(Location location);
+    Task<IEnumerable<Location>> UpdateManyAsync(params Location[] locations);    
+
+    Task DeleteAsync(Guid id);
+    Task DeleteManyAsync(params Guid[] ids);    
 }

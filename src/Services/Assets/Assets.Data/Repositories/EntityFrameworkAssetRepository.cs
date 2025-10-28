@@ -9,38 +9,65 @@ namespace Assets.Data.Repositories;
 
 public class EntityFrameworkAssetRepository(AssetsDbContext context) : IAssetRepository
 {
-    public async Task AddAssetAsync(Asset asset)
-    {
-        asset.Id = Guid.NewGuid();
-        asset.CreatedAt = DateTime.UtcNow;
-        asset.LastUpdatedAt = DateTime.UtcNow;
+    public async Task<Asset> AddAsync(Asset asset)
+        => (await AddManyAsync(asset)).First();
 
-        context.Assets.Add(asset);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+    public async Task<IEnumerable<Asset>> AddManyAsync(params Asset[] assets)
+    {
+        foreach (var asset in assets)
+        {
+            asset.Id = Guid.NewGuid();
+            asset.CreatedAt = DateTime.UtcNow;
+            asset.LastUpdatedAt = DateTime.UtcNow;
+
+            context.Assets.Add(asset);
+        }
+
+        await context.SaveChangesAsync();
+
+        return assets;
     }
 
-    public async Task DeleteAssetAsync(Guid id)
+    public async Task<Asset?> GetByIdAsync(Guid id)
+        => await context.Assets.FindAsync(id);
+
+    public async Task<IEnumerable<Asset>> GetByLocationIdAsync(Guid id)
+        => await context.Assets.Where(x => x.LocationId == id).ToListAsync();
+
+    public async Task DeleteAsync(Guid id)  
+        => await DeleteManyAsync(id);
+
+    public async Task DeleteManyAsync(params Guid[] ids)
     {
-        var asset = await context.Assets.FindAsync(id);
-        if (asset != null)
+        foreach (var id in ids)
         {
-            context.Assets.Remove(asset);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            var asset = await context.Assets.FindAsync(id);
+            if (asset != null)
+            {
+                context.Assets.Remove(asset);
+            }
         }
+
+        await context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Asset>> GetAllAssetsAsync()
-        => (await context.Assets.ToListAsync().ConfigureAwait(false)).AsEnumerable();
+        => (await context.Assets.ToListAsync()).AsEnumerable();
 
-    public async Task<Asset?> GetAssetByIdAsync(Guid id)
-        => await context.Assets.FindAsync(id).ConfigureAwait(false);
 
-    public async Task<Asset?> UpdateAssetAsync(Asset asset)
+    public async Task<Asset?> UpdateAsync(Asset asset)
+        => (await UpdateManyAsync(asset)).FirstOrDefault();
+
+    public async Task<IEnumerable<Asset>> UpdateManyAsync(params Asset[] assets)
     {
-        asset.LastUpdatedAt = DateTime.UtcNow;
-        context.Assets.Update(asset);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        foreach (var asset in assets)
+        {
+            asset.LastUpdatedAt = DateTime.UtcNow;
+            context.Assets.Update(asset);
+        }
 
-        return asset;
+        await context.SaveChangesAsync();
+
+        return assets;
     }
 }

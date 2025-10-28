@@ -8,5 +8,6 @@ public record CreateAssetRequest
     public string? Manufacturer {  get; set; }
     public string? ModelNumber { get; set; }
     public string? SerialNumber { get; set; }
+    public required Guid LocationId { get; init; }
 }
 

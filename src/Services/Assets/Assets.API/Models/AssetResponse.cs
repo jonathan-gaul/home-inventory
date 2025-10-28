@@ -1,8 +1,9 @@
 ﻿namespace Assets.API.Models;
 
-public class AssetResponse
+public record AssetResponse
 {
-    public Guid Id { get; set; }
+    public required Guid Id { get; init; }
+    public required LocationReference Location { get; init;  }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Type { get; set; }

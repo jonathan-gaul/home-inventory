@@ -32,6 +32,9 @@ public class AssetsDbContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(1000);
 
+            entity.Property(e => e.LocationId)
+                .IsRequired();
+
             entity.Property(e => e.PurchaseCost)
                 .HasColumnType("decimal(18,2)");
 

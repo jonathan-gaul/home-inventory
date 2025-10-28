@@ -1,5 +1,6 @@
 ﻿using Assets.Data.Entities;
 using Assets.Data.Repositories;
+using Assets.Services.Models;
 using System.Threading.Tasks;
 
 namespace Assets.API.Models;
@@ -20,7 +21,7 @@ public static class Mappings
                     LastUpdatedAt = DateTime.UtcNow,
                 };
 
-    public static Asset ToAsset(this UpdateAssetRequest request, Guid id)
+    public static Asset ToAsset(this UpdateAssetRequest request)
                 => new()
                 {
                     Id = Guid.NewGuid(),
@@ -34,26 +35,20 @@ public static class Mappings
                     LastUpdatedAt = DateTime.UtcNow,
                 };
 
-    public static AssetResponse ToAssetResponse(this Asset asset)
+    public static AssetResponse ToAssetResponse(this AssetWithLocation awl)
                 => new()
                 {
-                    Id = asset.Id,
-                    Name = asset.Name,
-                    Type = asset.Type,
-                    Description = asset.Description,
-                    Manufacturer = asset.Manufacturer,
-                    ModelNumber = asset.ModelNumber,
-                    SerialNumber = asset.SerialNumber,
-                    CreatedAt = asset.CreatedAt,
-                    LastUpdatedAt = asset.LastUpdatedAt,
+                    Id = awl.Asset.Id,
+                    Name = awl.Asset.Name,
+                    Type = awl.Asset.Type,
+                    Description = awl.Asset.Description,
+                    Manufacturer = awl.Asset.Manufacturer,
+                    ModelNumber = awl.Asset.ModelNumber,
+                    SerialNumber = awl.Asset.SerialNumber,
+                    CreatedAt = awl.Asset.CreatedAt,
+                    LastUpdatedAt = awl.Asset.LastUpdatedAt,
+                    Location = new(awl.Asset.LocationId, awl.Location?.Name ?? "Unknown")
                 };
-
-    public static LocationReference ToLocationReference(this Location location) =>
-        new()
-        {
-            Id = location.Id,
-            Name = location.Name
-        };
 
     public static Location ToLocation(this CreateLocationRequest request) =>
         new()

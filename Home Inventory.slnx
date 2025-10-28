@@ -3,6 +3,7 @@
   <Folder Name="/Services/Assets/">
     <Project Path="src/Services/Assets/Assets.API/Assets.API.csproj" />
     <Project Path="src/Services/Assets/Assets.Data/Assets.Data.csproj" />
+    <Project Path="src/Services/Assets/Assets.Services/Assets.Services.csproj" Id="15cec228-59f6-4a64-b4c5-61381109fdb1" />
   </Folder>
   <Folder Name="/Services/ImageProcessing/">
     <Project Path="src/Services/ImageProcessing/ImageProcessing.API/ImageProcessing.API.csproj" Id="72b87749-6b8b-4675-8029-2777fcae9951" />

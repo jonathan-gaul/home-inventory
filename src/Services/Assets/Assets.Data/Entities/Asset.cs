@@ -17,6 +17,8 @@ public class Asset
     public decimal? CurrentValue { get; set; }
 
 
+    public Guid LocationId { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime LastUpdatedAt { get; set; } = DateTime.Now;
 }
