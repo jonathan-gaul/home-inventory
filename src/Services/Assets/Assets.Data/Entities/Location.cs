@@ -13,6 +13,8 @@ public class Location
 
     public Guid? ParentLocationId { get; set; }
 
+    public Guid OrganisationId { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
 

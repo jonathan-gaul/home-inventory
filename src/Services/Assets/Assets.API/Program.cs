@@ -1,14 +1,20 @@
-using Assets.API.Models;
-using Assets.Data.Context;
-using Assets.Data.Entities;
-using Assets.Data.Repositories;
-using Assets.Services;
-using Assets.Services.Models;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
+using Assets.API.Models;
+using Assets.Data.Context;
+using Assets.Data.Repositories;
+using Assets.Services;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<AssetsDbContext>(options =>
     options.UseSqlServer(
@@ -25,8 +31,11 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // ==== Assets ====
-var assetsApi = app.MapGroup("/assets");
+var assetsApi = app.MapGroup("/assets").RequireAuthorization();
 
 assetsApi.MapGet("/{id}", async (Guid id, IAssetService assetService)
     => await assetService.GetByIdAsync(id) switch
@@ -53,7 +62,7 @@ assetsApi.MapDelete("/{id}", async (Guid id, IAssetService assetService) =>
 
 
 // ==== Locations ====
-var locationsApi = app.MapGroup("/locations");
+var locationsApi = app.MapGroup("/locations").RequireAuthorization();
 
 locationsApi.MapGet("/{id}", async (Guid id, ILocationService locationService) => 
     {
@@ -88,10 +97,8 @@ locationsApi.MapPut("/{id}", async (Guid id, UpdateLocationRequest updateRequest
             ? await locationService.GetByIdAsync(updateRequest.ParentLocationId.Value)
             : null;
 
-        if (updateRequest.Children is not null)
-        {
-            await locationService.ReparentChildrenAsync(updatedLocation.Id, updateRequest.ParentLocationId, updateRequest.Children.ToArray());        
-        }
+        if (updateRequest.Children is not null)        
+            await locationService.ReparentChildrenAsync(updatedLocation.Id, updateRequest.ParentLocationId, updateRequest.Children.ToArray());                
 
         var children = await locationService.GetByParentIdAsync(id);
 

@@ -9,6 +9,10 @@
     <Project Path="src/Services/ImageProcessing/ImageProcessing.API/ImageProcessing.API.csproj" Id="72b87749-6b8b-4675-8029-2777fcae9951" />
     <Project Path="src/Services/ImageProcessing/ImageProcessing.Data/ImageProcessing.Data.csproj" Id="8a032f20-bf3f-4716-9859-15cf4a60ac9f" />
   </Folder>
+  <Folder Name="/Services/Users/">
+    <Project Path="src/Services/Users/Users.API/Users.API.csproj" Id="6a11d0e6-7337-4125-8803-2bcd8889761b" />
+    <Project Path="src/Services/Users/Users.Data/Users.Data.csproj" Id="85631bfc-8de7-45a0-a7b6-01f6e05d7010" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

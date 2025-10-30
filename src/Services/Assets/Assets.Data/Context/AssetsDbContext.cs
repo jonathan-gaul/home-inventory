@@ -47,9 +47,13 @@ public class AssetsDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .IsRequired();
 
+            entity.Property(e => e.OrganisationId)
+                .IsRequired();
+
             entity.HasIndex(e => e.Name);
             entity.HasIndex(e => e.SerialNumber);
             entity.HasIndex(e => e.ModelNumber);
+            entity.HasIndex(e => e.OrganisationId);
         });
 
         modelBuilder.Entity<Location>(entity =>
@@ -68,8 +72,12 @@ public class AssetsDbContext : DbContext
             entity.Property(e => e.LastUpdatedAt)
                 .IsRequired();
 
+            entity.Property(e => e.OrganisationId)
+                .IsRequired();
+
             entity.HasIndex(e => e.Name);
             entity.HasIndex(e => e.ParentLocationId);
+            entity.HasIndex(e => e.OrganisationId);
         });
     }
 }
