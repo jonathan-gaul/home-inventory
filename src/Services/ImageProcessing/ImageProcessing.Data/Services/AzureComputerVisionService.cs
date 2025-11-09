@@ -21,7 +21,7 @@ public class AzureComputerVisionService : IComputerVisionService
                      | VisualFeatures.Read;
 
         var analysisOptions = new ImageAnalysisOptions
-        {            
+        {
             Language = "en"
         };
 

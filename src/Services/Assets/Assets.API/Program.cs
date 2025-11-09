@@ -1,12 +1,10 @@
-using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
-
-using Assets.API.Models;
 using Assets.Data.Context;
 using Assets.Data.Repositories;
 using Assets.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
+using Scalar.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);

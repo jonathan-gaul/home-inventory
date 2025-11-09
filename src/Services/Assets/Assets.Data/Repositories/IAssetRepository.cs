@@ -1,23 +1,26 @@
 
 namespace Assets.Data.Repositories;
 
+using Assets.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Assets.Data.Entities;
 
 public interface IAssetRepository
 {
-    Task<Asset?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Asset>> GetAllAssetsAsync();
-    Task<IEnumerable<Asset>> GetByLocationIdAsync(Guid id);
+    Task<AssetEntity?> GetByIdAsync(Guid id);
+    Task<AssetEntity?> GetByIdWithLocationAsync(Guid id);
 
-    Task<Asset> AddAsync(Asset asset);
-    Task<IEnumerable<Asset>> AddManyAsync(params Asset[] asset);
-    
-    Task<Asset?> UpdateAsync(Asset asset);
-    Task<IEnumerable<Asset>> UpdateManyAsync(params Asset[] assets);
-    
+    Task<IEnumerable<AssetEntity>> GetByLocationIdAsync(Guid id);
+
+    Task<AssetEntity> AddAsync(AssetEntity asset);
+    Task<IEnumerable<AssetEntity>> AddManyAsync(params AssetEntity[] asset);
+    Task<IEnumerable<AssetEntity>> AddManyWithLocationAsync(params AssetEntity[] assets);
+
+    Task<AssetEntity?> UpdateAsync(AssetEntity asset);
+    Task<IEnumerable<AssetEntity>> UpdateManyAsync(params AssetEntity[] assets);
+    Task<IEnumerable<AssetEntity>> UpdateManyWithLocationAsync(params AssetEntity[] assets);
+
     Task DeleteAsync(Guid id);
     Task DeleteManyAsync(params Guid[] ids);
 }

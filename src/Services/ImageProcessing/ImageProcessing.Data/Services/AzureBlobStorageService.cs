@@ -1,6 +1,5 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using System.IO;
 
 namespace ImageProcessing.Data.Services;
 
@@ -29,7 +28,7 @@ public class AzureBlobStorageService : IBlobStorageService
     public async Task UploadAsync(Guid blobId, string contentType, Stream content)
     {
         var blobClient = _containerClient.GetBlobClient(blobId.ToString());
-        
+
         await blobClient.UploadAsync(content, new BlobUploadOptions
         {
             HttpHeaders = new() { ContentType = contentType }

@@ -1,9 +1,6 @@
 ﻿using ImageProcessing.Data.Context;
 using ImageProcessing.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ImageProcessing.Data.Repositories;
 

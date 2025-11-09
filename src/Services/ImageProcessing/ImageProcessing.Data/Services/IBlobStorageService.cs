@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Mime;
-using System.Text;
-
-namespace ImageProcessing.Data.Services;
+﻿namespace ImageProcessing.Data.Services;
 
 public interface IBlobStorageService
 {

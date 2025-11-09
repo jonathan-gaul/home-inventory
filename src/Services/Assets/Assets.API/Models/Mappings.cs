@@ -1,7 +1,4 @@
-﻿using Assets.Data.Entities;
-using Assets.Data.Repositories;
-using Assets.Services.Models;
-using System.Threading.Tasks;
+﻿using Assets.Services.Models;
 
 namespace Assets.API.Models;
 
@@ -10,7 +7,7 @@ public static class Mappings
     public static Asset ToAsset(this CreateAssetRequest request)
                 => new()
                 {
-                    Id = Guid.NewGuid(),
+                    AssetId = Guid.NewGuid(),
                     Name = request.Name,
                     Type = request.Type,
                     Description = request.Description,
@@ -24,7 +21,7 @@ public static class Mappings
     public static Asset ToAsset(this UpdateAssetRequest request)
                 => new()
                 {
-                    Id = Guid.NewGuid(),
+                    AssetId = Guid.NewGuid(),
                     Name = request.Name,
                     Type = request.Type,
                     Description = request.Description,
@@ -38,31 +35,30 @@ public static class Mappings
     public static AssetResponse ToAssetResponse(this AssetWithLocation awl)
                 => new()
                 {
-                    Id = awl.Asset.Id,
-                    Name = awl.Asset.Name,
-                    Type = awl.Asset.Type,
-                    Description = awl.Asset.Description,
-                    Manufacturer = awl.Asset.Manufacturer,
-                    ModelNumber = awl.Asset.ModelNumber,
-                    SerialNumber = awl.Asset.SerialNumber,
-                    CreatedAt = awl.Asset.CreatedAt,
-                    LastUpdatedAt = awl.Asset.LastUpdatedAt,
-                    Location = new(awl.Asset.LocationId, awl.Location?.Name ?? "Unknown")
+                    Id = awl.AssetId,
+                    Name = awl.Name,
+                    Type = awl.Type,
+                    Description = awl.Description,
+                    Manufacturer = awl.Manufacturer,
+                    ModelNumber = awl.ModelNumber,
+                    SerialNumber = awl.SerialNumber,
+                    CreatedAt = awl.CreatedAt,
+                    LastUpdatedAt = awl.LastUpdatedAt,
+                    Location = new(awl.LocationId, awl.Location?.Name ?? "Unknown")
                 };
 
-    public static Location ToLocation(this CreateLocationRequest request) =>
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = request.Name,
-            Description = request.Description,
-            ParentLocationId = request.ParentLocationId
-        };
+    public static Location ToLocation(this CreateLocationRequest request) => new()
+    {
+        LocationId = Guid.NewGuid(),
+        Name = request.Name,
+        Description = request.Description,
+        ParentLocationId = request.ParentLocationId
+    };
 
     public static Location ToLocation(this UpdateLocationRequest req, Guid id) =>
         new()
         {
-            Id = id,
+            LocationId = id,
             Name = req.Name,
             Description = req.Description,
             LastUpdatedAt = DateTime.Now,
@@ -72,7 +68,7 @@ public static class Mappings
     public static LocationResponse ToLocationResponse(this Location location) =>
         new()
         {
-            Id = location.Id,
+            Id = location.LocationId,
             Name = location.Name,
             Description = location.Description,
             Parent = null,

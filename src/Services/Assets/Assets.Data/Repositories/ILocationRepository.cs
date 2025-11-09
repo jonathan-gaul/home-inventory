@@ -1,22 +1,25 @@
 ﻿using Assets.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Assets.Data.Repositories;
 
 public interface ILocationRepository
 {
-    Task<Location?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Location>> GetManyByIdAsync(params Guid[] ids);
-    Task<IEnumerable<Location>> GetByParentIdAsync(Guid id);
+    Task<LocationEntity?> GetByIdAsync(Guid id);
+    Task<LocationEntity?> GetByIdWithAssetsAsync(Guid id);
+    Task<LocationEntity?> GetByIdWithChildrenAsync(Guid id);
 
-    Task<Location> AddAsync(Location location);
-    Task<IEnumerable<Location>> AddManyAsync(params Location[] locations);
+    Task<IEnumerable<LocationEntity>> GetManyByIdAsync(params Guid[] ids);
+    Task<IEnumerable<LocationEntity>> GetManyByIdWithAssetsAsync(params Guid[] ids);
 
-    Task<Location?> UpdateAsync(Location location);
-    Task<IEnumerable<Location>> UpdateManyAsync(params Location[] locations);    
+    Task<IEnumerable<LocationEntity>> GetByParentIdAsync(Guid id);
+    Task<IEnumerable<LocationEntity>> GetByParentIdWithAssetsAsync(Guid id);
+
+    Task<LocationEntity> AddAsync(LocationEntity location);
+    Task<IEnumerable<LocationEntity>> AddManyAsync(params LocationEntity[] locations);
+
+    Task<LocationEntity?> UpdateAsync(LocationEntity location);
+    Task<IEnumerable<LocationEntity>> UpdateManyAsync(params LocationEntity[] locations);
 
     Task DeleteAsync(Guid id);
-    Task DeleteManyAsync(params Guid[] ids);    
+    Task DeleteManyAsync(params Guid[] ids);
 }

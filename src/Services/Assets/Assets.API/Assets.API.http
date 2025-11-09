@@ -1,11 +1,11 @@
 @Assets.API_HostAddress = http://localhost:5289
 
-GET {{Assets.API_HostAddress}}/assets/
+GET {{Assets.API_HostAddress}}/api/assets/
 Accept: application/json
 
 ###
 
-GET {{Assets.API_HostAddress}}/assets/1
+GET {{Assets.API_HostAddress}}/api/assets/1
 Accept: application/json
 
 ###

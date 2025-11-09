@@ -16,7 +16,7 @@ public class LocationsController : ControllerBase
     public LocationsController(ILocationService locationService)
     {
         _locationService = locationService;
-    }   
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
@@ -31,7 +31,7 @@ public class LocationsController : ControllerBase
         return Ok(location.ToLocationResponse() with
         {
             Parent = location.ParentLocationId is not null ? new(location.ParentLocationId.Value, parent?.Name ?? "Unknown") : null,
-            Children = [.. children.Select(x => new LocationReference(x.Id, x.Name))]
+            Children = [.. children.Select(x => new LocationReference(x.LocationId, x.Name))]
         });
     }
 
@@ -39,8 +39,10 @@ public class LocationsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateLocationRequest request)
     {
         var result = await _locationService.CreateAsync(request.ToLocation());
+        if (result is null)
+            return NotFound();
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result.ToLocationResponse());
+        return CreatedAtAction(nameof(GetById), new { id = result.LocationId }, result.ToLocationResponse());
     }
 
     [HttpPut("{id}")]
@@ -56,14 +58,14 @@ public class LocationsController : ControllerBase
             : null;
 
         if (request.Children is not null)
-            await _locationService.ReparentChildrenAsync(updatedLocation.Id, request.ParentLocationId, [.. request.Children]);
+            await _locationService.ReparentChildrenAsync(updatedLocation.LocationId, request.ParentLocationId, [.. request.Children]);
 
         var children = await _locationService.GetByParentIdAsync(id);
 
         var response = updatedLocation is null ? null : updatedLocation.ToLocationResponse() with
         {
-            Parent = parentLocation is not null ? new(parentLocation.Id, parentLocation.Name) : null,
-            Children = [.. children.Select(x => new LocationReference(x.Id, x.Name))]
+            Parent = parentLocation is not null ? new(parentLocation.LocationId, parentLocation.Name) : null,
+            Children = [.. children.Select(x => new LocationReference(x.LocationId, x.Name))]
         };
 
         return Ok(response);

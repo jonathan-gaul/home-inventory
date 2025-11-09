@@ -3,7 +3,7 @@
 public record AssetResponse
 {
     public required Guid Id { get; init; }
-    public required LocationReference Location { get; init;  }
+    public required LocationReference Location { get; init; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Type { get; set; }

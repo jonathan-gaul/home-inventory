@@ -1,23 +1,19 @@
 ﻿using Assets.Data.Context;
 using Assets.Data.Entities;
-using Assets.Data.Migrations;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Assets.Data.Repositories;
 
 public class EntityFrameworkLocationRepository(AssetsDbContext context) : ILocationRepository
 {
-    public async Task<Location> AddAsync(Location location) 
+    public async Task<LocationEntity> AddAsync(LocationEntity location)
         => (await AddManyAsync(location)).First();
 
-    public async Task<IEnumerable<Location>> AddManyAsync(params Location[] locations)
+    public async Task<IEnumerable<LocationEntity>> AddManyAsync(params LocationEntity[] locations)
     {
         foreach (var location in locations)
         {
-            location.Id = Guid.NewGuid();
+            location.LocationId = Guid.NewGuid();
             location.CreatedAt = DateTime.UtcNow;
             location.LastUpdatedAt = DateTime.UtcNow;
 
@@ -28,7 +24,7 @@ public class EntityFrameworkLocationRepository(AssetsDbContext context) : ILocat
         return locations;
     }
 
-    public async Task DeleteAsync(Guid id) 
+    public async Task DeleteAsync(Guid id)
         => await DeleteManyAsync(id);
 
     public async Task DeleteManyAsync(params Guid[] ids)
@@ -44,17 +40,33 @@ public class EntityFrameworkLocationRepository(AssetsDbContext context) : ILocat
 
         await context.SaveChangesAsync();
     }
-    
-    public async Task<Location?> GetByIdAsync(Guid id)
-        => await context.Locations.FindAsync(id);
 
-    public async Task<IEnumerable<Location>> GetManyByIdAsync(params Guid[] ids)
-        => await context.Locations.Where(x => ids.Contains(x.Id)).ToListAsync();
+    public async Task<LocationEntity?> GetByIdAsync(Guid id)
+        => await context.Locations.SingleOrDefaultAsync(l => l.LocationId == id);
 
-    public async Task<Location?> UpdateAsync(Location location)
+    public async Task<LocationEntity?> GetByIdWithAssetsAsync(Guid id)
+        => await context.Locations
+            .Include(l => l.Assets)
+            .SingleOrDefaultAsync(l => l.LocationId == id);
+
+    public async Task<LocationEntity?> GetByIdWithChildrenAsync(Guid id)
+        => await context.Locations
+            .Include(l => l.ChildLocations)
+            .SingleOrDefaultAsync(l => l.LocationId == id);
+
+    public async Task<IEnumerable<LocationEntity>> GetManyByIdAsync(params Guid[] ids)
+        => await context.Locations.Where(x => ids.Contains(x.LocationId)).ToListAsync();
+
+    public async Task<IEnumerable<LocationEntity>> GetManyByIdWithAssetsAsync(params Guid[] ids)
+        => await context.Locations
+            .Include(l => l.Assets)
+            .Where(x => ids.Contains(x.LocationId))
+            .ToListAsync();
+
+    public async Task<LocationEntity?> UpdateAsync(LocationEntity location)
         => (await UpdateManyAsync(location)).FirstOrDefault();
 
-    public async Task<IEnumerable<Location>> UpdateManyAsync(params Location[] locations)
+    public async Task<IEnumerable<LocationEntity>> UpdateManyAsync(params LocationEntity[] locations)
     {
         foreach (var location in locations)
         {
@@ -67,6 +79,12 @@ public class EntityFrameworkLocationRepository(AssetsDbContext context) : ILocat
         return locations;
     }
 
-    public async Task<IEnumerable<Location>> GetByParentIdAsync(Guid parentId)
+    public async Task<IEnumerable<LocationEntity>> GetByParentIdAsync(Guid parentId)
         => await context.Locations.Where(x => x.ParentLocationId == parentId).ToListAsync();
+
+    public async Task<IEnumerable<LocationEntity>> GetByParentIdWithAssetsAsync(Guid parentId)
+        => await context.Locations
+            .Include(l => l.Assets)
+            .Where(x => x.ParentLocationId == parentId)
+            .ToListAsync();
 }

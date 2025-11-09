@@ -12,7 +12,7 @@ public class AssetsController : ControllerBase
 {
     private readonly ILogger<AssetsController> _logger;
     private readonly IAssetService _assetService;
-    
+
     public AssetsController(IAssetService assetService)
     {
         _assetService = assetService;
@@ -34,14 +34,13 @@ public class AssetsController : ControllerBase
     {
         var result = await _assetService.CreateAsync(request.ToAsset());
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Asset.Id }, result.ToAssetResponse());
+        return CreatedAtAction(nameof(GetById), new { id = result.AssetId }, result.ToAssetResponse());
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssetRequest request)
     {
-        var asset = request.ToAsset();
-        asset.Id = id;
+        var asset = request.ToAsset() with { AssetId = id };
 
         var updatedAsset = await _assetService.UpdateAsync(request.ToAsset());
         if (updatedAsset is null)

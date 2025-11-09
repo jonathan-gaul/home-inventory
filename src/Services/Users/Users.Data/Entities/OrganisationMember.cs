@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Users.Data.Entities;
+﻿namespace Users.Data.Entities;
 
 public class OrganisationMember
 {

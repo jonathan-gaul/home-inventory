@@ -1,51 +1,75 @@
-﻿using Assets.Data.Entities;
-using Assets.Data.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Assets.Data.Repositories;
+using Assets.Services.Models;
 
 namespace Assets.Services;
 
 public class LocationService(ILocationRepository locationRepository) : ILocationService
 {
-    public Task<Location?> GetByIdAsync(Guid id)
-        => locationRepository.GetByIdAsync(id);
-    
-    public Task<IEnumerable<Location>> GetByParentIdAsync(Guid parentId)
-        => locationRepository.GetByParentIdAsync(parentId);
+    public async Task<Location?> GetByIdAsync(Guid id)
+    {
+        var entity = await locationRepository.GetByIdAsync(id);
+        return entity is null ? null : Location.FromEntity(entity);
+    }
 
-    public Task<IEnumerable<Location>> GetManyByIdAsync(params Guid[] ids)
-        => locationRepository.GetManyByIdAsync(ids);
+    public async Task<LocationWithAssets?> GetByIdWithAssetsAsync(Guid id)
+    {
+        var entity = await locationRepository.GetByIdWithAssetsAsync(id);
+        return entity is null ? null : LocationWithAssets.FromEntity(entity);
+    }
+
+    public async Task<IEnumerable<Location>> GetByParentIdAsync(Guid parentId)
+        => (await locationRepository.GetByParentIdAsync(parentId)).Select(Location.FromEntity);
+
+    public async Task<IEnumerable<Location>> GetManyByIdAsync(params Guid[] ids)
+        => (await locationRepository.GetManyByIdAsync(ids)).Select(Location.FromEntity);
 
 
-    public Task<Location> CreateAsync(Location location)
-        => locationRepository.AddAsync(location);
-    
-    public Task<IEnumerable<Location>> CreateManyAsync(params Location[] locations)
-        => locationRepository.AddManyAsync(locations);
+    public async Task<Location?> CreateAsync(Location location)
+    {
+        var addedEntity = await locationRepository.AddAsync(location.ToEntity());
+        return Location.FromEntity(addedEntity);
+    }
 
+    public async Task<IEnumerable<Location>> CreateManyAsync(params Location[] locations)
+    {
+        var locationEntities = locations.Select(l => l.ToEntity()).ToArray();
+        return (await locationRepository.AddManyAsync(locationEntities)).Select(Location.FromEntity);
+    }
 
-    public Task<Location?> UpdateAsync(Location location)
-        => locationRepository.UpdateAsync(location);
+    public async Task<Location?> UpdateAsync(Location location)
+    {
+        var updatedEntity = await locationRepository.UpdateAsync(location.ToEntity());
+        if (updatedEntity is null)
+            return null;
 
-    public Task<IEnumerable<Location>> UpdateManyAsync(params Location[] locations)
-        => locationRepository.UpdateManyAsync(locations);
+        return Location.FromEntity(updatedEntity);
+    }
+
+    public async Task<IEnumerable<Location>> UpdateManyAsync(params Location[] locations)
+    {
+        var locationEntities = locations.Select(l => l.ToEntity()).ToArray();
+        return (await locationRepository.UpdateManyAsync(locationEntities)).Select(Location.FromEntity);
+    }
 
 
     public Task DeleteAsync(Guid id)
         => locationRepository.DeleteAsync(id);
+
     public Task DeleteManyAsync(params Guid[] ids)
         => locationRepository.DeleteManyAsync(ids);
 
     public async Task<IEnumerable<Location>> ReparentChildrenAsync(Guid parentId, Guid? newParentId, params Guid[] childIds)
-    {        
-        var existingChildren = await locationRepository.GetByParentIdAsync(parentId);
+    {
+        var parentLocation = await locationRepository.GetByIdWithChildrenAsync(parentId);
 
-        var existingIds = existingChildren.Select(x => x.Id);
+        if (parentLocation is null)
+            throw new ArgumentException($"Parent location does not exist: {parentId}");
+
+        var existingIds = parentLocation.ChildLocations.Select(x => x.LocationId);
         var childIdsToAdd = childIds.Except(existingIds);
         var newChildren = await locationRepository.GetManyByIdAsync([.. childIdsToAdd]);
 
-        var childIdsThatDontExist = childIds.Where(x => !newChildren.Select(c => c.Id).Contains(x));
+        var childIdsThatDontExist = childIds.Where(x => !newChildren.Select(c => c.LocationId).Contains(x));
 
         if (childIdsThatDontExist.Any())
         {
@@ -65,8 +89,8 @@ public class LocationService(ILocationRepository locationRepository) : ILocation
                 throw new ArgumentException($"Cannot remove the following children as no new parent was provided: {idsText}");
             }
 
-            var parentLocation = await locationRepository.GetByIdAsync(newParentId.Value);
-            if (parentLocation is null)
+            var newParentLocation = await locationRepository.GetByIdAsync(newParentId.Value);
+            if (newParentLocation is null)
             {
                 var idsText = string.Join(", ", childIdsToRemove);
                 throw new ArgumentException($"Cannot remove the following children as the new parent does not exist: {idsText}");
@@ -92,6 +116,6 @@ public class LocationService(ILocationRepository locationRepository) : ILocation
             await locationRepository.UpdateManyAsync([.. childrenToAdd]);
         }
 
-        return await locationRepository.GetByParentIdAsync(parentId);
+        return (await locationRepository.GetByParentIdAsync(parentId)).Select(Location.FromEntity);
     }
 }

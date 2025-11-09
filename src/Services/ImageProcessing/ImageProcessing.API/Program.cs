@@ -44,18 +44,19 @@ var app = builder.Build();
 
 var imagesApi = app.MapGroup("/images");
 
-imagesApi.MapGet("/{id}/content", async (Guid id, IBlobStorageService storage, IImageRepository repository) 
-    => {
-        var image = await repository.GetImageByIdAsync(id).ConfigureAwait(false);
-        if (image == null)
-            return Results.NotFound();
+imagesApi.MapGet("/{id}/content", async (Guid id, IBlobStorageService storage, IImageRepository repository)
+    =>
+{
+    var image = await repository.GetImageByIdAsync(id).ConfigureAwait(false);
+    if (image == null)
+        return Results.NotFound();
 
-        var stream = await storage.DownloadAsync(image.Id!.Value);
-        if (stream is null)
-            return Results.NotFound();
+    var stream = await storage.DownloadAsync(image.Id!.Value);
+    if (stream is null)
+        return Results.NotFound();
 
-        return Results.File(stream, image.ContentType);
-    });
+    return Results.File(stream, image.ContentType);
+});
 
 app.MapPost("/{id}/analyse", async (
     Guid id,
@@ -132,7 +133,7 @@ imagesApi.MapGet("/{id}", async (Guid id, IImageRepository repository)
         _ => Results.NotFound(),
     });
 
-imagesApi.MapPost("/", async (    
+imagesApi.MapPost("/", async (
     IFormFile file,
     Guid assetId,
     IBlobStorageService storage,
@@ -141,7 +142,7 @@ imagesApi.MapPost("/", async (
     // Validation
     if (file == null || file.Length == 0)
         return Results.BadRequest("No file uploaded");
-    
+
     var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/heic" };
     if (!allowedTypes.Contains(file.ContentType.ToLower()))
         return Results.BadRequest("Invalid file type. Only JPEG, PNG, and HEIC are allowed.");
@@ -179,7 +180,7 @@ imagesApi.MapGet("/", async (
 {
     if (assetIds is null || assetIds.Length == 0)
         return Results.BadRequest("At least one assetId is required");
-    
+
     var images = await repository.GetImagesByAssetIdAsync(assetIds);
     return Results.Ok(images.Select(x => x.ToResponse()));
 });

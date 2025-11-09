@@ -13,7 +13,7 @@ public static class ImageMappings
             ContentType = image.ContentType,
             AnalysisStatus = image.AnalysisStatus switch
             {
-                ImageAnalysisStatus.NotAnalysed => "Not Analysed",                
+                ImageAnalysisStatus.NotAnalysed => "Not Analysed",
                 var other => other.ToString(),
             }
         };
